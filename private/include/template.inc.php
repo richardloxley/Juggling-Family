@@ -64,7 +64,7 @@ function template_drawHeader($titleMessage, $roomIdOrNull, $bodyClass, $openGrap
 			<title><?php echo $title;?></title>
 			<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet"> 
 			<link rel="stylesheet" href="/public/thirdparty/rome/dist/rome.min.css" type="text/css">
-			<link rel="stylesheet" href="<?php echo RESOURCES_URL;?>style.css?r=36" type="text/css">
+			<link rel="stylesheet" href="<?php echo RESOURCES_URL;?>style.css?r=37" type="text/css">
 			<link rel="apple-touch-icon" href="<?php echo IMAGES_URL;?>mobile-icon.png"/>
 			<link rel="icon" href="<?php echo IMAGES_URL;?>mobile-icon.png"/>
 			<script type="text/javascript" src="/public/thirdparty/jquery/jquery-1.12.4.min.js"></script>

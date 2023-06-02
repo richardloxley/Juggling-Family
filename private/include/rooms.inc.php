@@ -328,7 +328,7 @@ function rooms_drawRoomListing($room, $first)
 						rooms_drawUnreadMessages($roomId, $unreadLabel);
 
 						$videoLabel = "<span class='room-activity-icon'>" . icon_videoCamera() . "</span>";
-						video_drawUsersIn($roomId, null, true, $videoLabel);
+						video_drawUsersIn($roomId, null, $videoLabel);
 
 						$textLabel = "<span class='room-activity-icon'>" . icon_speechBubble() . "</span>";
 						chat_drawActiveUsers($roomId, $textLabel);
@@ -981,6 +981,10 @@ function rooms_drawActiveUsers($roomId, $users, $label)
 				*/
 
 				echo '</span>';
+				echo '&nbsp';
+				echo '<span class=room-occupant-time>';
+				echo sprintf(LANG["rooms_users_elapsed_time"], $user["secondsSinceLastUpdate"] / 60);
+				echo '</span>';
 				echo ' ';
 			}
 		}
@@ -997,24 +1001,6 @@ function rooms_drawActiveUsers($roomId, $users, $label)
 				echo sprintf(LANG["rooms_user_count_multiple"], count($users));
 			}
 
-			echo '</span>';
-		}
-
-		$allUsersAreActive = true;
-
-		foreach ($users as $user)
-		{
-			if (isset($user["inactive"]) && $user["inactive"])
-			{
-				$allUsersAreActive = false;
-				break;
-			}
-		}
-
-		if (!$allUsersAreActive)
-		{
-			echo '<span class=room-occupants-not-updated>';
-			echo LANG["rooms_users_not_being_updated"];
 			echo '</span>';
 		}
 

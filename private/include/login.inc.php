@@ -702,6 +702,13 @@ function login_checkNickname($nickname, $isGuest)
 		}
 	}
 
+	// does it contain a quote (causes issues with JS)?
+
+	if (strstr($nickname, "'") !== false || strstr($nickname, '"') !== false)
+	{
+		return LANG["login_error_nickname_invalid_character"];
+	}
+
 
 	// no further checks for guest nicknames
 

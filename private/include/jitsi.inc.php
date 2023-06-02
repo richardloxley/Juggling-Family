@@ -23,6 +23,13 @@ function jitsi_deeplink($jitsiRoomId, $roomName)
 }
 
 
+function jitsi_webLink($jitsiRoomId, $roomName)
+{
+	$userNickname = login_getDisplayName();
+	return "https://" . jitsi_jitsiDomain() . jitsi_optionsAsUrl($jitsiRoomId, $roomName, $userNickname);
+}
+
+
 function jitsi_deeplinkIos($jitsiRoomId, $roomName)
 {
 	$userNickname = login_getDisplayName();
@@ -124,13 +131,6 @@ function jitsi_configOptions()
 			'__end'
 		),
 
-		// we override the actions on these buttons
-		"buttonsWithNotifyClick" => array
-		(
-			'fullscreen',
-			'participants-pane'
-		),
-
 		/////// performance related as Jitsi consumes very high CPU on older machines
 
 		// don't show the blue dots for audio levels as the JavaScript rendering takes
@@ -203,6 +203,14 @@ function jitsi_optionsAsJs($nickname)
 		"interfaceConfigOverwrite" => jitsi_interfaceOptions()
 	);
 
+	// we override the actions on these buttons if running in JS
+	$options["configOverwrite"]["buttonsWithNotifyClick"] = array
+	(
+		'fullscreen',
+		'participants-pane'
+	);
+
+
 	return json_encode($options);
 }
 
@@ -229,7 +237,6 @@ function jitsi_optionsAsUrl($jitsiRoomId, $roomName, $nickname)
 }
 
 
-//function jitsi_drawJitsiJs($roomId, $videoId, $jitsiRoomId, $roomName, $frameId)
 function jitsi_drawJitsiJs($roomId, $frameId)
 {
 	$userNickname = login_getDisplayName();
@@ -300,12 +307,6 @@ function jitsi_drawJitsiJs($roomId, $frameId)
 
 				// start up Jitsi
 				api = new JitsiMeetExternalAPI(domain, options);
-
-// hack
-//api.executeCommand('avatarUrl', 'https://test.juggling.family/avatar/guest/EG');
-
-				// hack - remove for now as probably no longer needed?
-				//api.addListener('tileViewChanged', tileChanged);
 
 				api.addListener('participantJoined', participantJoined);
 				api.addListener('participantKickedOut', participantKickedOut);

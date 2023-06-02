@@ -1681,6 +1681,14 @@ max-width: 100%;
 	padding-bottom: 4px;
 }
 
+.room-occupant-time
+{
+	margin-left: 2px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	font-size: 70%;
+}
+
 .room-occupants-count,
 .room-unread-messages-count
 {

@@ -86,8 +86,11 @@ function video_drawStartVideoButton($videoId, $jitsiRoomId, $jitsiTitle)
 {
 	if (isset($_COOKIE["jitsi-use-app"]))
 	{
+		$name = login_getDisplayName();
+		$dummyUserId = md5($name);
+		$joinedApiUrl =	API_URL["video-participant-changed"] . '?video=' . $videoId . '&myid=' . $dummyUserId . '&joined=' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
 		?>
-			<a class="link-looking-like-a-button video-mobile-app-button" href="<?php echo jitsi_deeplink($jitsiRoomId, $jitsiTitle); ?>">
+			<a class="link-looking-like-a-button video-mobile-app-button" href="<?php echo jitsi_deeplink($jitsiRoomId, $jitsiTitle); ?>" onclick="fetch('<?php echo $joinedApiUrl; ?>');">
 				<span class="video-chat-icon">
 					<?php echo icon_mobilePhone();?>
 				</span>
@@ -95,19 +98,37 @@ function video_drawStartVideoButton($videoId, $jitsiRoomId, $jitsiTitle)
 			</a>
 			<p>
 		<?php
-
 	}
 	else
 	{
-		$encodedRoomTitle = htmlspecialchars(json_encode($jitsiTitle), ENT_QUOTES, 'UTF-8');
-		?>
-			<button class='start-video-button' onclick='startVideoButtonClicked(<?php echo $videoId; ?>, "<?php echo $jitsiRoomId; ?>", <?php echo $encodedRoomTitle; ?>);'>
-				<span class="video-chat-icon">
-					<?php echo icon_videoCamera();?>
-				</span>
-				<?php echo LANG["video_start_video_button"]; ?>
-			</button>
-		<?php
+		if (CONFIG["jitsi_embed_in_iframe"])
+		{
+			$encodedRoomTitle = htmlspecialchars(json_encode($jitsiTitle), ENT_QUOTES, 'UTF-8');
+			?>
+				<button class='start-video-button' onclick='startVideoButtonClicked(<?php echo $videoId; ?>, "<?php echo $jitsiRoomId; ?>", <?php echo $encodedRoomTitle; ?>);'>
+					<span class="video-chat-icon">
+						<?php echo icon_videoCamera();?>
+					</span>
+					<?php echo LANG["video_start_video_button"]; ?>
+				</button>
+			<?php
+		}
+		else
+		{
+			$name = login_getDisplayName();
+			$dummyUserId = md5($name);
+			$joinedApiUrl =	API_URL["video-participant-changed"] . '?video=' . $videoId . '&myid=' . $dummyUserId . '&joined=' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
+
+			?>
+				<a class="link-looking-like-a-button start-video-button" href="<?php echo jitsi_webLink($jitsiRoomId, $jitsiTitle); ?>" onclick="fetch('<?php echo $joinedApiUrl; ?>');" target="_blank">
+					<span class="video-chat-icon">
+						<?php echo icon_videoCamera();?>
+					</span>
+					<?php echo LANG["video_start_video_button"]; ?>
+				</a>
+				<p>
+			<?php
+		}
 	}
 }
 
@@ -224,14 +245,13 @@ function video_drawVideoChats($roomId)
 			{
 				video_drawStartVideoButton($videos[0]["videoId"], $videos[0]["jitsiId"], $roomName);
 			}
-
-			video_drawUsersIn($roomId, $videos[0]["videoId"], true, $cameraIcon);
 		}
 		else
 		{
 			video_drawAltVideoButton($videos[0]["videoId"], $videos[0]["altUrl"]);
-			video_drawUsersIn($roomId, $videos[0]["videoId"], false, $cameraIcon);
 		}
+
+		video_drawUsersIn($roomId, $videos[0]["videoId"], $cameraIcon);
 	}
 	else
 	{
@@ -265,14 +285,13 @@ function video_drawVideoChats($roomId)
 				{
 					video_drawStartVideoButton($video["videoId"], $video["jitsiId"], $jitsiTitle);
 				}
-
-				video_drawUsersIn($roomId, $video["videoId"], true, $cameraIcon);
 			}
 			else
 			{
 				video_drawAltVideoButton($video["videoId"], $video["altUrl"]);
-				video_drawUsersIn($roomId, $video["videoId"], false, $cameraIcon);
 			}
+
+			video_drawUsersIn($roomId, $video["videoId"], $cameraIcon);
 
 			$x++;
 
@@ -286,28 +305,31 @@ function video_drawVideoChats($roomId)
 	echo "</div>";
 
 
-	// load the Jitsi stuff
+	if (CONFIG["jitsi_embed_in_iframe"])
+	{
+		// load the Jitsi stuff
 
-	jitsi_drawJitsiJs($roomId, "video-jitsi-frame");
+		jitsi_drawJitsiJs($roomId, "video-jitsi-frame");
 
 
-	// javascript for everything else
+		// javascript for everything else
 
-	?>
-		<script type="text/javascript">
+		?>
+			<script type="text/javascript">
 
-			function startVideoButtonClicked(videoId, jitsiRoomId, roomName)
-			{
-				$("body").addClass("video-body");
-				hideAllModules();
+				function startVideoButtonClicked(videoId, jitsiRoomId, roomName)
+				{
+					$("body").addClass("video-body");
+					hideAllModules();
 
-				$("#video-jitsi-frame").show();
+					$("#video-jitsi-frame").show();
 
-				startVideo(videoId, jitsiRoomId, roomName);
-			};
+					startVideo(videoId, jitsiRoomId, roomName);
+				};
 
-		</script>
-	<?php
+			</script>
+		<?php
+	}
 }
 
 
@@ -391,9 +413,16 @@ function video_getVideoChats($roomId)
 
 function video_numberSecondsForInactivity()
 {
-	// if they've missed at least 2 updates, regard them as no longer active
-	// (alt video rooms will have inactive users almost immediately as we can't read them)
-	return 3 * CONFIG["jitsi_occupant_refresh_time_seconds"];
+	if (CONFIG["jitsi_embed_in_iframe"])
+	{
+		// if they've missed at least 2 updates, regard them as no longer active
+		return 3 * CONFIG["jitsi_occupant_refresh_time_seconds"];
+	}
+	else
+	{
+		// other video rooms will have inactive users almost immediately as we can't read them
+		return CONFIG["video_user_inactive_after_seconds"];
+	}
 }
 
 
@@ -490,7 +519,7 @@ function video_drawBannerAndFrame($roomId)
 }
 
 
-function video_drawUsersIn($roomId, $videoIdOrNull, $isJitsiVideo, $label)
+function video_drawUsersIn($roomId, $videoIdOrNull, $label)
 {
 	video_cleanOutInactiveUsers();
 
@@ -570,7 +599,7 @@ function video_getUsersInVideo($videoId)
 	try
 	{
 		$db = database_getConnection();
-		$st = mysqli_prepare($db, "select video_display_name, has_javascript, time_to_sec(timediff(UTC_TIMESTAMP(), last_seen)) as seconds_since_last_update from video_users where video_id = ? order by first_seen");
+		$st = mysqli_prepare($db, "select video_display_name, has_javascript, time_to_sec(timediff(UTC_TIMESTAMP(), last_seen)) as seconds_since_last_update from video_users where video_id = ? order by last_seen desc");
 		mysqli_stmt_bind_param($st, "i", $videoId);
 		mysqli_stmt_execute($st);
 		mysqli_stmt_bind_result($st, $jitsiName, $hasJavascript, $secondsSinceLastUpdate);
@@ -578,7 +607,13 @@ function video_getUsersInVideo($videoId)
 		while (mysqli_stmt_fetch($st))
 		{
 			$inactive = ($secondsSinceLastUpdate > video_numberSecondsForInactivity());
-			$users[] = [ "name" => $jitsiName, "mobile" => !$hasJavascript, "inactive" => $inactive ];
+			$users[] =
+			[
+				"name" => $jitsiName,
+				"mobile" => !$hasJavascript,
+				"inactive" => $inactive,
+				"secondsSinceLastUpdate" => $secondsSinceLastUpdate
+			];
 		}
 
 		mysqli_stmt_close($st);
@@ -600,7 +635,7 @@ function video_getUsersInRoom($roomId)
 	{
 		$db = database_getConnection();
 
-		$st = mysqli_prepare($db, "select video_display_name, has_javascript, time_to_sec(timediff(UTC_TIMESTAMP(), last_seen)) as seconds_since_last_update from video_users inner join video using (video_id) where room_id = ? order by first_seen");
+		$st = mysqli_prepare($db, "select video_display_name, has_javascript, time_to_sec(timediff(UTC_TIMESTAMP(), last_seen)) as seconds_since_last_update from video_users inner join video using (video_id) where room_id = ? order by last_seen desc");
 		mysqli_stmt_bind_param($st, "i", $roomId);
 		mysqli_stmt_execute($st);
 		mysqli_stmt_bind_result($st, $jitsiName, $hasJavascript, $secondsSinceLastUpdate);
@@ -608,7 +643,13 @@ function video_getUsersInRoom($roomId)
 		while (mysqli_stmt_fetch($st))
 		{
 			$inactive = ($secondsSinceLastUpdate > video_numberSecondsForInactivity());
-			$users[] = [ "name" => $jitsiName, "mobile" => !$hasJavascript, "inactive" => $inactive ];
+			$users[] =
+			[
+				"name" => $jitsiName,
+				"mobile" => !$hasJavascript,
+				"inactive" => $inactive,
+				"secondsSinceLastUpdate" => $secondsSinceLastUpdate
+			];
 		}
 
 		mysqli_stmt_close($st);
@@ -626,6 +667,7 @@ function video_getUsersInRoom($roomId)
 function video_cleanOutInactiveUsers()
 {
 	$videoIdsToCleanOut = array();
+	$videoIdsToRefresh = array();
 
 	try
 	{
@@ -641,8 +683,8 @@ function video_cleanOutInactiveUsers()
 
 			if ($jitsiId !== null)
 			{
-				// we have a Jitsi room - which can send us updates *if* there is at least one user with JavaScript
-				if ($totalJavascript > 0)
+				// we have an iframe Jitsi room - which can send us updates *if* there is at least one user with JavaScript
+				if (CONFIG["jitsi_embed_in_iframe"] && $totalJavascript > 0)
 				{
 					// we have at least one person who can send updates
 					if ($secondsSinceLastUpdate > video_numberSecondsForInactivity())
@@ -654,12 +696,16 @@ function video_cleanOutInactiveUsers()
 				}
 				else
 				{
-					// we have only mobile users (who don't send us updates)
-					if ($secondsSinceLastUpdate > CONFIG["video_ignore_mobile_app_users_after_minutes"] * 60)
+					// we have only mobile users or non-iframe web users (who don't send us updates)
+					if ($secondsSinceLastUpdate > CONFIG["video_ignore_no_js_users_after_minutes"] * 60)
 					{
 						// they haven't been updated in a "reasonable" time
 						$videoIdsToCleanOut[] = $videoId;
 					}
+
+					// we display the time in the room for these type of chats, so always flag the list
+					// of users as having changed, since the time needs updating
+					$videoIdsToRefresh[] = $videoId;
 				}
 			}
 			else
@@ -670,12 +716,20 @@ function video_cleanOutInactiveUsers()
 					// they haven't been updated in a "reasonable" time
 					$videoIdsToCleanOut[] = $videoId;
 				}
+
+				// we display the time in the room for these type of chats, so always flag the list
+				// of users as having changed, since the time needs updating
+				$videoIdsToRefresh[] = $videoId;
 			}
 
 		}
 
 		mysqli_stmt_close($st);
 
+		foreach ($videoIdsToRefresh as $videoId)
+		{
+			video_usersHaveChanged($videoId);
+		}
 
 		// clean out the rooms that have unreliable data
 		foreach ($videoIdsToCleanOut as $videoId)
@@ -685,29 +739,6 @@ function video_cleanOutInactiveUsers()
 			mysqli_stmt_execute($st);
 			mysqli_stmt_close($st);
 
-			video_usersHaveChanged($videoId);
-		}
-
-
-		// now look at any video chats where the user has become inactive since the last change
-		// so we can flag that inactivity change to the UI
-
-		$videoIdsToRefresh = array();
-		$inactivitySeconds = video_numberSecondsForInactivity();
-		$st = mysqli_prepare($db, "select video_id from video_users inner join video using (video_id) where time_to_sec(timediff(UTC_TIMESTAMP(), last_seen)) > ? and time_to_sec(timediff(changed, last_seen)) < ? group by video_id");
-		mysqli_stmt_bind_param($st, "ii", $inactivitySeconds, $inactivitySeconds);
-		mysqli_stmt_execute($st);
-		mysqli_stmt_bind_result($st, $videoId);
-
-		while (mysqli_stmt_fetch($st))
-		{
-			$videoIdsToRefresh[] = $videoId;
-		}
-
-		mysqli_stmt_close($st);
-
-		foreach ($videoIdsToRefresh as $videoId)
-		{
 			video_usersHaveChanged($videoId);
 		}
 	}
@@ -950,7 +981,14 @@ function video_roomIdFromVideoId($videoId)
 
 function video_showSettings()
 {
+	// no settings if not logged in
 	if (!login_isLoggedIn() && !login_isGuest())
+	{
+		return false;
+	}
+
+	// settings only available for mobile users and iframe Jitsi users
+	if (!mobile_mightBeMobile() && !CONFIG["jitsi_embed_in_iframe"])
 	{
 		return false;
 	}
@@ -966,7 +1004,11 @@ function video_drawSettings()
 		video_drawSettingsApp();
 	}
 
-	video_drawSettingsBrowser();
+	if (CONFIG["jitsi_embed_in_iframe"])
+	{
+		// these settings only work in the iframe version of Jitsi
+		video_drawSettingsBrowser();
+	}
 }
 
 

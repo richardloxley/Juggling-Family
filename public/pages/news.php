@@ -77,6 +77,23 @@ template_drawHeader(LANG["page_title_news"], null, "");
 	</h3>
 
 	<h4>
+		Fri 2 Jun 2023
+	</h4>
+
+	<ul>
+		<li>
+			Jitsi have removed their free embedded API, so now I have to open Jitsi chats in a new window (on the Jitsi website).
+			This means we can't do clever stuff with the user interface any longer, and can no longer see who is currently in a video chat.
+			Instead I show when people last joined a video chat (if it's within the last 2 hours).
+			Also the title of the window is gibberish (as it's the private ID of the chat room to stop anyone stumbling across our chats).
+			Sadly there isn't anything much I can do about that.
+		</li>
+		<li>
+			I've finally got around to publishing the code for Juggling Family as open source (as I originally promised I'd do).
+			Sorry it's taken so long.  It's at <a href="https://github.com/richardloxley/Juggling-Family">https://github.com/richardloxley/Juggling-Family</a>
+		</li>
+	</ul>
+	<h4>
 		Mon 24 Apr 2023
 	</h4>
 
