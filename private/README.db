@@ -1,0 +1,14 @@
+mysql
+	create database jugglingfamily;
+	create user jugglingfamily@localhost identified by 'PASSWORD';
+	grant all privileges on jugglingfamily.* to jugglingfamily@localhost;
+	flush privileges;
+	quit
+
+to dump database structure:
+
+	mysqldump --no-data jugglingfamily | sed 's/ AUTO_INCREMENT=[0-9]*//g' >db.sql
+
+to restore database structure:
+
+	mysql jugglingfamily <db.sql

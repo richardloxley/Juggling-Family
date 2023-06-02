@@ -1,0 +1,106 @@
+RewriteEngine on
+
+# private areas
+RedirectMatch 404 /\.git
+RedirectMatch 404 /private/
+
+# ensure these always get through to their directory
+RewriteRule ^public/ - [PT]
+
+
+##### hacks for testing
+RewriteRule ^test(/.*)?$ public/pages/test.php [L]
+RewriteRule ^test2(/.*)?$ public/pages/test2.php [L]
+
+
+
+# root page
+RewriteRule ^/?$ public/pages/index.php [L]
+
+# /chat
+RewriteRule ^chat(/.*)?$ public/pages/chat.php [L]
+
+# /settings
+RewriteRule ^settings/?$ public/pages/settings.php [L]
+
+# /rooms
+RewriteRule ^rooms(/.*)?$ public/pages/rooms.php [L]
+
+# /createroom
+RewriteRule ^createroom(/.*)?$ public/pages/createroom.php [L]
+
+# /calendar
+RewriteRule ^calendar/?$ public/pages/calendar.php [L]
+
+# /calendar/add
+RewriteRule ^calendar/add/?$ public/pages/event.php [L]
+
+# /calendar/edit/xxxx
+RewriteRule ^calendar/edit/([^/]+)/?$ public/pages/event.php?event=$1 [L]
+
+# /calendar/subscribe
+RewriteRule ^calendar/subscribe/?$ public/pages/calendar_subscribe.php [L]
+
+# /calendar.ics
+RewriteRule ^calendar.ics$ public/pages/calendar_feed.php [L]
+
+# /login/xxxx where xxxx is an option page to redirect to after logging in
+RewriteRule ^login(/.*)?$ public/pages/login.php?redirect=$1 [L]
+
+# /logout
+RewriteRule ^logout(/.*)?$ public/pages/logout.php [L]
+
+# /join
+RewriteRule ^join(/.*)?$ public/pages/join.php [L]
+
+# /reset
+RewriteRule ^reset(/.*)?$ public/pages/reset.php [L]
+
+# /verify/xxxx/yyyy
+RewriteRule ^verify/([^/]+)/([^/]+)/?$ public/pages/verify.php?selector=$1&token=$2 [L]
+
+# /about
+RewriteRule ^about(/.*)?$ public/pages/about.php [L]
+
+# /faq
+RewriteRule ^faq(/.*)?$ public/pages/faq.php [L]
+
+# /news
+RewriteRule ^news(/.*)?$ public/pages/news.php [L]
+
+# /credits
+RewriteRule ^credits(/.*)?$ public/pages/credits.php [L]
+
+# /privacy
+RewriteRule ^privacy(/.*)?$ public/pages/privacy.php [L]
+
+# /contact
+RewriteRule ^contact(/.*)?$ public/pages/contact.php [L]
+
+# /ROOMNAME
+RewriteRule ^([^/]+)/?$ public/pages/room.php?room=$1 [L]
+
+# /ROOMNAME/calendar
+RewriteRule ^([^/]+)/calendar/?$ public/pages/calendar.php?room=$1 [L]
+
+# /ROOMNAME/calendar/add
+RewriteRule ^([^/]+)/calendar/add/?$ public/pages/event.php?room=$1 [L]
+
+# /ROOMNAME/calendar/edit/xxxx
+RewriteRule ^([^/]+)/calendar/edit/([^/]+)/?$ public/pages/event.php?room=$1&event=$2 [L]
+
+# /ROOMNAME/calendar/subscribe
+RewriteRule ^([^/]+)/calendar/subscribe/?$ public/pages/calendar_subscribe.php?room=$1 [L]
+
+# /ROOMNAME/calendar.ics
+RewriteRule ^([^/]+)/calendar.ics$ public/pages/calendar_feed.php?room=$1 [L]
+
+# /ROOMNAME/chat
+RewriteRule ^([^/]+)/chat/?$ public/pages/chat.php?room=$1 [L]
+
+# /ROOMNAME/invite
+RewriteRule ^([^/]+)/invite/?$ public/pages/invite.php?room=$1 [L]
+
+# /ROOMNAME/xxxx/yyyy
+RewriteRule ^([^/]+)/([^/]+)/([^/]+)/?$ public/pages/room.php?room=$1&selector=$2&token=$3 [L]
+

@@ -1,0 +1,6 @@
+public/uploads/rooms/large/*
+public/uploads/rooms/max/*
+public/uploads/rooms/thumbs/*
+private/config/db.ini
+private/config/local.ini
+private/commandline/email_invite.local.php
