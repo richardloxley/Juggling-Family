@@ -1785,7 +1785,6 @@ max-width: 100%;
 
 .video-external-button
 {
-	margin-top: 0;
 	background-color: var(--video-external-button-background);
 }
 
@@ -1809,7 +1808,8 @@ max-width: 100%;
 	border-radius: 8px;
 }
 
-.video-chat-section .start-video-button
+.video-chat-section .start-video-button,
+.video-chat-section .video-external-button
 {
 	display: inline-block;
 	margin: 0;

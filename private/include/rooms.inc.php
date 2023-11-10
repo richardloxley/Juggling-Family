@@ -981,10 +981,15 @@ function rooms_drawActiveUsers($roomId, $users, $label)
 				*/
 
 				echo '</span>';
-				echo '&nbsp';
-				echo '<span class=room-occupant-time>';
-				echo sprintf(LANG["rooms_users_elapsed_time"], $user["secondsSinceLastUpdate"] / 60);
-				echo '</span>';
+
+				if (isset($user["secondsSinceLastUpdate"]))
+				{
+					echo '&nbsp';
+					echo '<span class=room-occupant-time>';
+					echo sprintf(LANG["rooms_users_elapsed_time"], $user["secondsSinceLastUpdate"] / 60);
+					echo '</span>';
+				}
+
 				echo ' ';
 			}
 		}

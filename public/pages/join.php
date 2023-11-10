@@ -7,31 +7,38 @@ $email = "";
 
 if (isset($_POST["join"]) && isset($_POST["email"]) && $_POST["email"] != "")
 {
-	$email = $_POST["email"];
-
-	try
+	if (captcha_validate())
 	{
-		if (login_sendValidationEmail($email, true))
+		$email = $_POST["email"];
+
+		try
 		{
-			template_drawHeader(LANG["page_title_join"], null, "");
-			echo "<p>";
-			echo LANG["login_sign_up_form_thank_you"];
-			echo "<p>";
-			echo "<a href='" . PUBLIC_URL["index"] . "' class='link-looking-like-a-button'>";
-			echo LANG["link_back_to_home"];
-			echo "</a>";
-			template_drawFooter();
-			exit(0);
+			if (login_sendValidationEmail($email, true))
+			{
+				template_drawHeader(LANG["page_title_join"], null, "");
+				echo "<p>";
+				echo LANG["login_sign_up_form_thank_you"];
+				echo "<p>";
+				echo "<a href='" . PUBLIC_URL["index"] . "' class='link-looking-like-a-button'>";
+				echo LANG["link_back_to_home"];
+				echo "</a>";
+				template_drawFooter();
+				exit(0);
+			}
+			else
+			{
+				$error = LANG["login_sign_up_form_error"];
+			}
 		}
-		else
+		catch (mysqli_sql_exception $e)
 		{
-			$error = LANG["login_sign_up_form_error"];
+			error_log(__FILE__ . ":" . __LINE__ . " " . $e->getMessage());
+			$error = database_genericErrorMessage();
 		}
 	}
-	catch (mysqli_sql_exception $e)
+	else
 	{
-		error_log(__FILE__ . ":" . __LINE__ . " " . $e->getMessage());
-		$error = database_genericErrorMessage();
+		$error = LANG["login_captcha_error"];
 	}
 }
 
@@ -51,7 +58,7 @@ template_drawHeader(LANG["page_title_join"], null, "");
 			echo "</div>";
 		}
 ?>
-		<form method="post" autocorrect="off" autocapitalize="off" action="<?php echo $_SERVER['REQUEST_URI'] ?>">
+		<form method="post" autocorrect="off" autocapitalize="off" class="<?php echo captcha_formClass(); ?>" <?php echo captcha_formData(); ?> action="<?php echo $_SERVER['REQUEST_URI'] ?>">
 			<label>
 				<?php echo LANG["login_sign_up_form_label_email"] ?>
 				<input type="email" name="email" value="<?php echo htmlspecialchars($email);?>" size=50 maxlength=255>

@@ -77,6 +77,17 @@ template_drawHeader(LANG["page_title_news"], null, "");
 	</h3>
 
 	<h4>
+		Fri 10 Nov 2023
+	</h4>
+
+	<ul>
+		<li>
+			Bots have been trying to sign up for accounts, so I've implemented a "Captcha" on the forms
+			for creating accounts or resetting your password.
+		</li>
+	</ul>
+
+	<h4>
 		Fri 2 Jun 2023
 	</h4>
 
@@ -93,6 +104,7 @@ template_drawHeader(LANG["page_title_news"], null, "");
 			Sorry it's taken so long.  It's at <a href="https://github.com/richardloxley/Juggling-Family">https://github.com/richardloxley/Juggling-Family</a>
 		</li>
 	</ul>
+
 	<h4>
 		Mon 24 Apr 2023
 	</h4>

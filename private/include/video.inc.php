@@ -126,7 +126,6 @@ function video_drawStartVideoButton($videoId, $jitsiRoomId, $jitsiTitle)
 					</span>
 					<?php echo LANG["video_start_video_button"]; ?>
 				</a>
-				<p>
 			<?php
 		}
 	}

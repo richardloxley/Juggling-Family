@@ -512,6 +512,16 @@ function login_sendValidationEmail($email, $newAccount)
 	mysqli_stmt_close($st);
 
 
+	// NOTE 1: we no longer send join invitation emails if this was a password reset for an email that we don't recognise (see NOTE 2 below)
+
+	if (!$userAlreadyExists && !$newAccount)
+	{
+		error_log("User $email doesn't exist, ignoring password reset");
+		// silently fail so we don't leak information about registered email addresses
+		return true;
+	}
+
+
 	// store validation token
 
 	$selector = login_generateToken(8);
@@ -581,6 +591,7 @@ function login_sendValidationEmail($email, $newAccount)
 	{
 		if (!$newAccount)
 		{
+			// NOTE 2: we shouldn't ever get here now as we silently fail password resets for non-existant accounts (see NOTE 1 above)
 			$emailBody .= LANG["login_email_reset_warning"] . "\n\n";
 		}
 

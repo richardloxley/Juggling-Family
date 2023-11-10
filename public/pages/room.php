@@ -269,7 +269,7 @@ function invitationAskForEmail($roomId, $nickname, $email, $error)
 
 	?>
 		<div id='join-form'>
-			<form method="post" autocorrect="off" autocapitalize="off" action="<?php echo $_SERVER['REQUEST_URI'] ?>">
+			<form method="post" autocorrect="off" autocapitalize="off" class="<?php echo captcha_formClass(); ?>" <?php echo captcha_formData(); ?> action="<?php echo $_SERVER['REQUEST_URI'] ?>">
 				<input type="hidden" name="nickname" value="<?php echo htmlspecialchars($nickname);?>">
 				<label>
 					<?php echo LANG["invitation_member_email_prompt"] ?>
@@ -287,6 +287,7 @@ function invitationAskForEmail($roomId, $nickname, $email, $error)
 				?>
 
 				<input type="submit" name="yes-join" value="<?php echo LANG["invitation_member_email_button_yes"] ?>">
+				<p>
 			</form>
 			<a href='<?php echo rooms_getUrlFromRoomId($roomId);?>'>
 				<?php echo LANG["invitation_member_email_button_no"] ?>
@@ -300,17 +301,24 @@ function invitationSendEmail($email)
 {
 	$error = "";
 
-	try
+	if (captcha_validate())
 	{
-		if (!login_sendValidationEmail($email, true))
+		try
 		{
-			$error = LANG["login_sign_up_form_error"];
+			if (!login_sendValidationEmail($email, true))
+			{
+				$error = LANG["login_sign_up_form_error"];
+			}
+		}
+		catch (mysqli_sql_exception $e)
+		{
+			error_log(__FILE__ . ":" . __LINE__ . " " . $e->getMessage());
+			$error = database_genericErrorMessage();
 		}
 	}
-	catch (mysqli_sql_exception $e)
+	else
 	{
-		error_log(__FILE__ . ":" . __LINE__ . " " . $e->getMessage());
-		$error = database_genericErrorMessage();
+		$error = LANG["login_captcha_error"];
 	}
 
 	return $error;
